@@ -12,10 +12,20 @@ def getUrl(query,html):
 	urlre = re.compile(reg)  
 	urllist = re.findall(urlre,html)  
 	format = "https://www.youtube.com/watch%s\n"  
-	filename = query+"_url.txt"
+	filename = query+"_url.tmp"
 	f = open(filename, 'a')  
+	lines = f.readlines()
+	
 	for url in urllist:
+		has_downloaded = False
 		result = (format % url)
+		for li in lines:
+			if(li==result):
+				has_downloaded = True
+				break
+		if(has_downloaded)
+			print("-----------------------------\nHas downloaded this file.")
+			continue
 		print("-----------------------------")
 		#print('youtube-dl -f mp4 -o %s/%%(title)s-%%(id)s.%%(ext)s		%s' %(query,result))
 		#os.system('youtube-dl -f mp4 -o ./%s/ %s' %(query,result))

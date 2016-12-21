@@ -27,3 +27,10 @@
 *.exe
 *.out
 *.app
+
+# Media files
+*.mp4
+*.wav
+
+# Temporary files
+*.tmp
