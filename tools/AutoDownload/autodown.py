@@ -13,7 +13,7 @@ def getUrl(query,html):
 	urllist = re.findall(urlre,html)  
 	format = "https://www.youtube.com/watch%s\n"  
 	filename = query+"_url.tmp"
-	f = open(filename, 'a')  
+	f = open(filename, 'a+')  
 	lines = f.readlines()
 	
 	for url in urllist:
@@ -23,7 +23,7 @@ def getUrl(query,html):
 			if(li==result):
 				has_downloaded = True
 				break
-		if(has_downloaded)
+		if(has_downloaded):
 			print("-----------------------------\nHas downloaded this file.")
 			continue
 		print("-----------------------------")
