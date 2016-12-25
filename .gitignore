@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*.pyc
 
 # Precompiled Headers
 *.gch
@@ -35,3 +36,4 @@
 # Temporary files
 *.tmp
 *.part
+
