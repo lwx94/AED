@@ -4,7 +4,7 @@ import scipy.io.wavfile as wavio
 import scipy.signal as sg
 import matplotlib.pyplot as plt
 import nmf
-
+##Gets the dictionary by nmf
 
 #read wav file and return the spectogram
 def readwav(path):
@@ -19,12 +19,15 @@ def show(spec):
 	plt.show()
 	return
 
+def pooling:
+	return
+
 def main():
 	path = r'G:\School\thesis\DS4_T\wav_renamed'
 	WavFiles = glob.glob(path + '\\*.' + 'wav')
 	for index in WavFiles:
 		spec = readwav(index)
-		show(spec)
+		#show(spec)
 	return
 
 if __name__ == "__main__":
