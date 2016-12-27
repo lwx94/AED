@@ -37,3 +37,5 @@
 *.tmp
 *.part
 
+# Data files
+*.dat

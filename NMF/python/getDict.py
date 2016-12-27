@@ -1,5 +1,6 @@
 import numpy as np
 import glob
+import os
 import scipy.io.wavfile as wavio
 import scipy.signal as sg
 import matplotlib.pyplot as plt
@@ -30,6 +31,8 @@ def main():
 		spec = readwav(index)
 		nmfObject = nmf.NMF(spec[2],settings)
 		nmfObject.printparas()
+		nmfObject.writeresults("test1")
+		os.system("pause")
 		#show(spec)
 	return
 

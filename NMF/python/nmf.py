@@ -10,7 +10,7 @@ class NMF(object):
 	TDL = False
 	MLD = True
 	tol = 0
-	
+	#########parameter and V initialization###########
 	def __init__(self,V,parameterPath):
 		self.V = mat(V)
 		fileObject = open(parameterPath,"r")
@@ -27,6 +27,7 @@ class NMF(object):
 			if(re.match(r"tol:",ln)):
 				self.tol = float(re.split(r" |\n",ln)[1])
 	
+	#########printing current parameters and shape of matrix and factors############
 	def printparas(self):
 		print("--------------------------")
 		print("Parameters: ")
@@ -35,12 +36,34 @@ class NMF(object):
 		print("TDL: %d" %int(self.TDL))
 		print("MLD: %d" %int(self.MLD))
 		print("Tolerance: %f" %float(self.tol))
-		print("V shape: %d,%d" %(self.V.shape[0],self.V.shape[1]))
-		if(self.H):
+		if(self.V!=[]):
+			print("V shape: %d,%d" %(self.V.shape[0],self.V.shape[1]))
+		else:
+			print("V shape: %d,%d" %(0,0))
+		if(self.H!=[]):
 			print("H shape: %d,%d" %(self.H.shape[0],self.H.shape[1]))
-		if(self.W):
+		else:
+			print("H shape: %d,%d" %(0,0))
+		if(self.W!=[]):
 			print("W shape: %d,%d" %(self.W.shape[0],self.W.shape[1]))
+		else:
+			print("W shape: %d,%d" %(0,0))
 		print("--------------------------")
+	
+	########writing decomposition results into a file#############
+	def writeresults(self,filename):
+		if(self.V!=[]):
+			savetxt(filename+"_V.dat",self.V,fmt = ['%s']*self.V.shape[1],newline='\n')
+		else:
+			print("V is empty")
+		if(self.H!=[]):
+			savetxt(filename+"_H.dat",self.H,fmt = ['%s']*self.H.shape[1],newline='\n')
+		else:
+			print("H is empty")
+		if(self.W!=[]):
+			savetxt(filename+"_W.dat",self.W,fmt = ['%s']*self.W.shape[1],newline='\n')
+		else:
+			print("W is empty")
 	
 	def optimize(self):
 		
