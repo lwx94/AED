@@ -31,6 +31,7 @@ def main():
 		spec = readwav(index)
 		nmfObject = nmf.NMF(spec[2],settings)
 		nmfObject.printparas()
+		nmfObject.decompose()
 		nmfObject.writeresults("test1")
 		os.system("pause")
 		#show(spec)

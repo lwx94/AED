@@ -1,5 +1,20 @@
-maxiters: 10
+#########################
+# settings for nmf
+# -maxiters- maximum iterations the program will do for factorization
+# -loss function- loss function for convergence
+# 	-"sq" for euclidiean distance
+#	-"KL" for KL-divergence
+# -convolutive- whether nmf deconvolution is applied
+# -TDL- whether TDL is applied
+# -MLD- whether MLD is applied
+# -tol- the error tolerance
+# -r- the target dimension for nmf
+##########################
+
+maxiters: 1000
+loss_function: KL
 convolutive: 0
 TDL: 0
 MLD: 1
 tol: 3.44234
+r: 10
