@@ -1,0 +1,5 @@
+maxiters: 10
+convolutive: 0
+TDL: 0
+MLD: 1
+tol: 3.44234

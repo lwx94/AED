@@ -19,14 +19,17 @@ def show(spec):
 	plt.show()
 	return
 
-def pooling:
+def pooling():
 	return
 
 def main():
 	path = r'G:\School\thesis\DS4_T\wav_renamed'
+	settings = "settings.set"
 	WavFiles = glob.glob(path + '\\*.' + 'wav')
 	for index in WavFiles:
 		spec = readwav(index)
+		nmfObject = nmf.NMF(spec[2],settings)
+		nmfObject.printparas()
 		#show(spec)
 	return
 
