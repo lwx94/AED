@@ -1,5 +1,5 @@
 function  []  = batchEventDetection(folder)
-% DCASE 2016 - Task 2 - Event Detection
+% DbatchCASE 2016 - Task 2 - Event Detection
 % http://www.cs.tut.fi/sgn/arg/dcase2016/task-synthetic-sound-event-detection
 %
 % Performs event detection to a collection of audio recordings
@@ -11,5 +11,6 @@ function  []  = batchEventDetection(folder)
 
 fileList = dir([folder '/*.wav']);
 for i=1:length(fileList)
-    eventDetection([folder '/' fileList(i).name],30,0.6,1.0,9,5,0.06);
+    predicted_labels = eventDetection([folder '/' fileList(i).name],30,0.6,1.0,9,5,0.06);
+    a = 0;
 end;

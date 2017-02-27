@@ -1,4 +1,4 @@
-function [] = eventDetection(filename,iter,beta,thr,mf,maxpoly,mindur)
+function [predicted_labels] = eventDetection(filename,iter,beta,thr,mf,maxpoly,mindur)
 % DCASE 2016 - Task 2 - Event Detection
 % http://www.cs.tut.fi/sgn/arg/dcase2016/task-synthetic-sound-event-detection
 %
@@ -26,7 +26,9 @@ addpath('nmflib');
 addpath('CQT_2013');
 warning('off');
 load('W');
+load('SVM_Mdl');
 class_list = {'clearthroat','cough', 'doorslam', 'drawer', 'keyboard', 'keys', 'knock', 'laughter', 'pageturn', 'phone', 'speech'};
+[R,~] = size(W);
 
 
 % Compute VQT spectrogram
@@ -38,9 +40,9 @@ X = intCQT(:,round(1:5.2883:size(intCQT,2)))'; % 10ms step
 
 
 % Emphasize high freqs and remove low frequency bins
-f = X(:,21:end)';
-f = f .* repmat( linspace( 1, 15, size( f, 1))', 1, size( f, 2));
-X =f';
+%f = X(:,21:end)';
+%f = f .* repmat( linspace( 1, 15, size( f, 1))', 1, size( f, 2));
+%X =f';
 
 
 % Remove background noise from input
@@ -56,36 +58,41 @@ fprintf('\n');
 
 % Perform NMF with beta-divergence
 fprintf('%s',['Performing NMF...........']);
-[w,h,errs,vout] = nmf_beta(Y',220,'W0',W','W',W','niter',iter,'verb', 1,'beta',beta);
+[w,h,errs,vout] = nmf_beta(Y',R,'W0',W','W',W','niter',iter,'verb', 1,'beta',beta);
 fprintf('%s','done');
 fprintf('\n');
+
+% SVM predict
+fprintf('%s',['Predicting...........']);
+[a,b] = size(h);
+predicted_labels = libsvmpredict(rand(b,1),h',SVM_Mdl,'');
 
 
 % Create event-roll representation
-fprintf('%s',['Postprocessing...........']);
-h_reshaped = reshape(h,[20 length(class_list) size(h,2)]);
-eventRoll = squeeze(sum(h_reshaped,1))';
-
-
+%fprintf('%s',['Postprocessing...........']);
+%h_reshaped = reshape(h,[20 length(class_list) size(h,2)]);
+%eventRoll = squeeze(sum(h_reshaped,1))';
+% 
+% 
 % Impose constraint on maximum number of concurrent events
-[B,IX] = sort(eventRoll,2,'descend');
-tempEventRoll = zeros(size(eventRoll,1),length(class_list));
-for j=1:size(eventRoll,1) for k=1:maxpoly tempEventRoll(j,IX(j,k)) = B(j,k); end; end;
-eventRoll = tempEventRoll;
-eventRoll = medfilt1(eventRoll,mf);
+% [B,IX] = sort(eventRoll,2,'descend');
+% tempEventRoll = zeros(size(eventRoll,1),length(class_list));
+% for j=1:size(eventRoll,1) for k=1:maxpoly tempEventRoll(j,IX(j,k)) = B(j,k); end; end;
+% eventRoll = tempEventRoll;
+% eventRoll = medfilt1(eventRoll,mf);
 
-
-% Perform thresholding and create a list of detected events
-path = (eventRoll > thr);  
-[onset,offset,classNames] = convertEventRolltoEventList(path,mindur,0.06,class_list);
-
-
-% Write output to .txt file
-filename = strrep(filename,'.wav','');
-fid=fopen([filename '.txt'],'w');
-for i=1:length(onset)
-    fprintf(fid,'%.2f\t%.2f\t%s\n',onset(i),offset(i),classNames{i});
-end;
-fclose(fid);
-fprintf('%s','done');
-fprintf('\n');
+% 
+% % Perform thresholding and create a list of detected events
+% path = (eventRoll > thr);  
+% [onset,offset,classNames] = convertEventRolltoEventList(path,mindur,0.06,class_list);
+% 
+% 
+% % Write output to .txt file
+% filename = strrep(filename,'.wav','');
+% fid=fopen([filename '.txt'],'w');
+% for i=1:length(onset)
+%     fprintf(fid,'%.2f\t%.2f\t%s\n',onset(i),offset(i),classNames{i});
+% end;
+% fclose(fid);
+% fprintf('%s','done');
+% fprintf('\n');

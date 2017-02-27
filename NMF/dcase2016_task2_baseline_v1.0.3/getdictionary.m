@@ -1,4 +1,4 @@
-function [] = getdictionary(folder)
+function [] = getdictionary(folder,R1,R2,K,iter)
 % DCASE 2016 - Task 2 - Event Detection
 % http://www.cs.tut.fi/sgn/arg/dcase2016/task-synthetic-sound-event-detection
 %
@@ -21,13 +21,12 @@ addpath('CQT_2013');
 disp('DCASE 2016 - Task 2 - Training');
 %for i=1:length(classID)
 disp(['Computing spectral templates' ]);
-spectralTemplates = computeSpectralTemplates(folder,4);
-save([folder '/' 'spectralTemplates_' ],'spectralTemplates');
+W = computeSpectralTemplates(folder,R1,R2,K,iter);
 %end
 
 
 % Stack event class templates and emphasize high frequencies
-W = [];
+% W = [];
 
 %for i=1:length(1)
 %    load([folder '/' 'spectralTemplates_']);
@@ -57,10 +56,10 @@ disp('Done');
 % computeSpectralTemplates:
 % Function that computes a set of spectral templates for a given event class
 % (one template per training recording)
-function [spectralTemplates] = computeSpectralTemplates(folder,K)
+function [spectralTemplates] = computeSpectralTemplates(folder,R1,R2,K,iter)
 
 
-% Initialize
+% Initialize..........
 fileList = dir([folder '/' '*.wav']);
 
 % For each file
@@ -74,8 +73,8 @@ for i=1:length(fileList)
     %changin verbosity
     %[w,h,errs,vout] = nmf_beta(X',1,'W0',mean(X)','niter', 10, 'verb', 1,'beta',0.6);
    
-    [miu,w,h,errs,vout] = nmf_u_g(X',49,'niter',10,'K',K,'verb',3);
-    [w_mld,h_mld,errs_mld,vout_mld] = nmf_mld(X',miu,'niter',10,'verb',3);
+    [miu,w,h,errs,vout] = nmf_u_g(X',R1,'niter',iter,'K',K,'verb',3);
+    [w_mld,h_mld,errs_mld,vout_mld] = nmf_mld(X',R2,miu,'niter',iter,'verb',3,'lambda',0.5,'epsilon',0.1);
     % Add to dictionary
     spectralTemplates = w_mld';   
     

@@ -1,4 +1,4 @@
-function [W,H,errs,vout] = nmf_mld(V,miu,varargin)
+function [W,H,errs,vout] = nmf_mld(V,r,miu,varargin)
 % function [W,H,errs,vout] = nmf_beta(V,r,varargin)
 %
 % Implements NMF using the beta-divergence [1]:
@@ -96,7 +96,7 @@ miu=miu';
 [~,K] = size(miu);
 if isempty(W)
     if isempty(W0)
-        W = rand(n,K);
+        W = rand(n,K*r);
     else
         W = W0;
     end
@@ -108,7 +108,7 @@ end
 % initialize H based on what we got passed
 if isempty(H)
     if isempty(H0)
-        H = rand(K,m);
+        H = rand(K*r,m);
     else
         H = H0;
     end
@@ -136,7 +136,13 @@ for t = 1:niter
     if update_W
         for g=1:K
            %repmat((nn.*miu(:,g)./W(:,g)),1,K))
-            W(:,g) = W(:,g).*(((V./R)*H(g,:)'+(nn.*miu(:,g)./W(:,g)))./(one*(H(g,:)'+nn)));
+           W_temp = [];
+           for k=1:r
+               W_temp = [W_temp,nn.*miu(:,g)./W(:,(g-1)*r+k)];
+           end
+            W(:,(g-1)*r+1:g*r) = W(:,(g-1)*r+1:g*r).*(((V./R)*...
+                H((g-1)*r+1:g*r,:)'+W_temp)...
+                ./(one*(H((g-1)*r+1:g*r,:)'+nn)));
         end
         if norm_w ~= 0
             W = normalize_W(W,norm_w);
