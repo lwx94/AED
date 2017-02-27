@@ -36,6 +36,7 @@
 # Temporary files
 *.tmp
 *.part
+*.asv
 
 # Data files
 *.dat

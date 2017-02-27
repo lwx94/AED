@@ -1,4 +1,4 @@
-function [] = training(folder)
+function [] = getdictionary(folder)
 % DCASE 2016 - Task 2 - Event Detection
 % http://www.cs.tut.fi/sgn/arg/dcase2016/task-synthetic-sound-event-detection
 %
@@ -30,22 +30,22 @@ save([folder '/' 'spectralTemplates_' ],'spectralTemplates');
 W = [];
 
 %for i=1:length(1)
-    load([folder '/' 'spectralTemplates_']);
+%    load([folder '/' 'spectralTemplates_']);
         
-    f = squeeze(spectralTemplates(:,21:end))'; % Emphasize high frequencies
-    f = f .* repmat( linspace( 1, 15, size( f, 1))', 1, size( f, 2));
-    spectralTemplates(:,21:end) = f';
+%    f = squeeze(spectralTemplates(:,21:end))'; % Emphasize high frequencies
+%    f = f .* repmat( linspace( 1, 15, size( f, 1))', 1, size( f, 2));
+%    spectralTemplates(:,21:end) = f';
     
-    W = [W; spectralTemplates];
+%    W = [W; spectralTemplates];
 
 %end
 
 
 % Remove low frequency bins and normalise
-W = W(:,21:end); 
-for i=1:size(W,1) 
-    W(i,:) = W(i,:) / sum(W(i,:)); 
-end;
+%W = W(:,21:end); 
+%for i=1:size(W,1) 
+ %   W(i,:) = W(i,:) / sum(W(i,:)); 
+%end;
 
 
 %Save dictionary matrix
