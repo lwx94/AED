@@ -73,8 +73,11 @@ for i=1:length(fileList)
     %changin verbosity
     %[w,h,errs,vout] = nmf_beta(X',1,'W0',mean(X)','niter', 10, 'verb', 1,'beta',0.6);
    
-    [miu,w,h,errs,vout] = nmf_u_g(X',R1,'niter',iter,'K',K,'verb',3);
-    [w_mld,h_mld,errs_mld,vout_mld] = nmf_mld(X',R2,miu,'niter',iter,'verb',3,'lambda',0.5,'epsilon',0.1);
+    [w,h,errs,vout] = nmf_base(X',R1,'niter',iter,'verb',3,'lambda',2,'epsilon',1E-5);
+    % calculating kmeans
+    [miu,eps,J] = kmeans(w',K,'f',100);
+    
+    [w_mld,h_mld,errs_mld,vout_mld] = nmf_mld(X',R2,miu,'niter',iter,'verb',3,'lambda',2,'epsilon',1E-5);
     % Add to dictionary
     spectralTemplates = w_mld';   
     

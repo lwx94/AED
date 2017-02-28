@@ -56,9 +56,9 @@ fprintf('%s','done');
 fprintf('\n');
 
 
-% Perform NMF with beta-divergence
+% Perform NMF with noise dictionary
 fprintf('%s',['Performing NMF...........']);
-[w,h,errs,vout] = nmf_beta(Y',R,'W0',W','W',W','niter',iter,'verb', 1,'beta',beta);
+[w,h,errs,vout] = nmf_noise(Y',R,'W0',W','W',W','niter',iter,'verb', 1,'lambda',2,'epsilon',1E-5);
 fprintf('%s','done');
 fprintf('\n');
 

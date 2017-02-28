@@ -1,4 +1,4 @@
-function [miu,W,H,errs,vout] = nmf_u_g(V,r,varargin)
+function [W,H,errs,vout] = nmf_base(V,r,varargin)
 % function [W,H,errs,vout] = nmf_beta(V,r,varargin)
 %
 % Implements NMF using the beta-divergence [1]:
@@ -86,10 +86,11 @@ end
 [n,m] = size(V);
 
 % process arguments
-[beta, niter, thresh, norm_w, norm_h, verb, K, W0, H0, W, H] = ...
+[beta, niter, thresh, norm_w, norm_h, verb, W0, H0, W, H ,epsilon,lambda] = ...
     parse_opt(varargin, 'beta', 0, 'niter', 100, 'thresh', [], ...
-                        'norm_w', 1, 'norm_h', 0, 'verb', 1, 'K', 5, ...
-                        'W0', [], 'H0', [], 'W', [], 'H', []);
+                        'norm_w', 1, 'norm_h', 0, 'verb', 1,  ...
+                        'W0', [], 'H0', [], 'W', [], 'H', [],...
+                        'epsilon',0, 'lambda', 0);
 
 % initialize W based on what we got passed
 if isempty(W)
@@ -145,6 +146,7 @@ for t = 1:niter
     % update H if requested
     if update_H
         H=H.*((W'*(V./R))./(W'*one));
+        H = H.*(1./(1+lambda./(epsilon+abs(H))));
         if norm_h ~= 0
             H = normalize_H(H,norm_h);
         end
@@ -168,7 +170,7 @@ for t = 1:niter
     
     % display error if asked
     if verb >= 3
-        disp(['nmf_beta: iter=' num2str(t) ', err=' num2str(errs(t)) ...
+        disp(['nmf_base: iter=' num2str(t) ', err=' num2str(errs(t)) ...
               '(beta=' num2str(beta) ')']);
     end
     
@@ -182,8 +184,7 @@ for t = 1:niter
     end
 end
 
-% calculating kmeans
-[miu,eps,J] = kmeans(W',K,'f',100);
+
 
 % display error if asked
 if verb >= 2

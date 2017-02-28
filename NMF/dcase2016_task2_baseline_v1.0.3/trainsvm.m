@@ -1,4 +1,4 @@
-function [SVM_Mdl,meas,label ] = trainsvm( folder ,beta, iter)
+function [SVM_Mdl,meas,label ] = trainsvm( folder , iter)
 
 addpath('nmflib');
 addpath('CQT_2013');
@@ -16,7 +16,7 @@ for i=1:length(class_list)
         fprintf('%s',['Performing NMF on ' fileList(k).name  '............ ']);
         [intCQT] = computeVQT([folder '/' fileList(k).name]);
         X = intCQT(:,1:10:size(intCQT,2))';
-        [w,h,errs,vout] = nmf_beta(X',R,'W0',W','W',W','niter',iter,'verb', 1,'beta',beta);
+        [w,h,errs,vout] = nmf_base(X',R,'W0',W','W',W','niter',iter,'verb', 1,'lambda',2,'epsilon',1E-5);
         [a,b] = size(h);
         label_temp = [];
         for u=1:b
@@ -25,6 +25,7 @@ for i=1:length(class_list)
         end
     	label = [label,label_temp];
         
+        h(h<0.01) = 0;
         meas = [meas;h'];
         fprintf('%s','done');
         fprintf('\n');

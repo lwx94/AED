@@ -1,4 +1,4 @@
-function [W,H,errs,vout] = nmf_mld(V,r,miu,varargin)
+function [W,H,errs,vout] = nmf_noise(V,r,varargin)
 % function [W,H,errs,vout] = nmf_beta(V,r,varargin)
 %
 % Implements NMF using the beta-divergence [1]:
@@ -84,19 +84,18 @@ if min(sum(V,2)) == 0
 end
 
 [n,m] = size(V);
-miu=miu';
+
 % process arguments
-[beta, niter, thresh, norm_w, norm_h, verb, nn,epsilon, lambda, W0, H0, W, H] = ...
+[beta, niter, thresh, norm_w, norm_h, verb, W0, H0, W, H ,epsilon,lambda] = ...
     parse_opt(varargin, 'beta', 0, 'niter', 100, 'thresh', [], ...
-                        'norm_w', 1, 'norm_h', 0, 'verb', 1,'nn',1,'epsilon',0, 'lambda', 0, ...
-                        'W0', [], 'H0', [], 'W', [], 'H', []);
+                        'norm_w', 1, 'norm_h', 0, 'verb', 1,  ...
+                        'W0', [], 'H0', [], 'W', [], 'H', [],...
+                        'epsilon',0, 'lambda', 0);
 
 % initialize W based on what we got passed
-
-[~,K] = size(miu);
 if isempty(W)
     if isempty(W0)
-        W = rand(n,K*r);
+        W = rand(n,r);
     else
         W = W0;
     end
@@ -104,11 +103,11 @@ if isempty(W)
 else 
     update_W = false;
 end
-
+Wn = rand(n,r);
 % initialize H based on what we got passed
 if isempty(H)
     if isempty(H0)
-        H = rand(K*r,m);
+        H = rand(r,m);
     else
         H = H0;
     end
@@ -116,7 +115,8 @@ if isempty(H)
 else % we aren't H
     update_H = false;
 end
-                    
+Hn = rand(r,m);
+
 if norm_w ~= 0
     % normalize W
     W = normalize_W(W,norm_w);
@@ -128,41 +128,36 @@ if norm_h ~= 0
 end
 
 % initial reconstruction
-R = W*H;
-one = ones(n,m);
+R = W*H+Wn*Hn;
+
 errs = zeros(niter,1);
+one = ones(n,m);
 for t = 1:niter
     % update W if requested
     if update_W
-        for g=1:K
-           %repmat((nn.*miu(:,g)./W(:,g)),1,K))
-           W_temp = [];
-           for k=1:r
-               W_temp = [W_temp,nn.*miu(:,g)./W(:,(g-1)*r+k)];
-           end
-            W(:,(g-1)*r+1:g*r) = W(:,(g-1)*r+1:g*r).*(((V./R)*...
-                H((g-1)*r+1:g*r,:)'+W_temp)...
-                ./(one*(H((g-1)*r+1:g*r,:)'+nn)));
-        end
+        W=W.*(((V./R)*H')./(one*H'));
         if norm_w ~= 0
             W = normalize_W(W,norm_w);
         end
     end
     
+    Wn = Wn.*((V./R)*Hn')./(one*Hn');
     % update reconstruction
-    R = W*H;
+    R = W*H+Wn*Hn;
    
     % update H if requested
     if update_H
-        H = H.*(W'*(V./R))./(W'*one);
+        H = H.*((W'*(V./R))./(W'*one));
         H = H.*(1./(1+lambda./(epsilon+abs(H))));
+        Hn = Hn.*((Wn'*(V./R))./(Wn'*one));
+        Hn = Hn.*(1./(1+lambda./(epsilon+abs(Hn))));
         if norm_h ~= 0
             H = normalize_H(H,norm_h);
         end
     end
     
     % update reconstruction
-    R = W*H;
+    R = W*H+Wn*Hn;
     
     % compute beta-divergence
     switch beta
@@ -179,7 +174,7 @@ for t = 1:niter
     
     % display error if asked
     if verb >= 3
-        disp(['nmf_mld: iter=' num2str(t) ', err=' num2str(errs(t)) ...
+        disp(['nmf_beta: iter=' num2str(t) ', err=' num2str(errs(t)) ...
               '(beta=' num2str(beta) ')']);
     end
     
@@ -193,9 +188,11 @@ for t = 1:niter
     end
 end
 
+
+
 % display error if asked
 if verb >= 2
-     disp(['nmf_mld: final_err=' num2str(errs(t)) '(beta=' num2str(beta) ')']);
+     disp(['nmf_beta: final_err=' num2str(errs(t)) '(beta=' num2str(beta) ')']);
 end
 
 % if we broke early, get rid of extra 0s in the errs vector
