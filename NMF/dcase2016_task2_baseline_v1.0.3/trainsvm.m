@@ -34,7 +34,10 @@ for i=1:length(class_list)
    
 end
 label = label';
+meas = sparse(meas);
 
 %SVM_Mdl = fitcecoc(meas,label);
-SVM_Mdl = libsvmtrain(label,meas,'-s 0 -t 0');
+for k=1:length(class_list)
+    SVM_Mdl{k} = train(double(label==k),meas,'-s 1');
+end
 save('SVM_Mdl','SVM_Mdl');

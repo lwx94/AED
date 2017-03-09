@@ -1,4 +1,4 @@
-function [predicted_labels] = eventDetection(filename,iter,beta,thr,mf,maxpoly,mindur)
+function [pred] = eventDetection(filename,iter,beta,thr,mf,maxpoly,mindur)
 % DCASE 2016 - Task 2 - Event Detection
 % http://www.cs.tut.fi/sgn/arg/dcase2016/task-synthetic-sound-event-detection
 %
@@ -65,8 +65,16 @@ fprintf('\n');
 % SVM predict
 fprintf('%s',['Predicting...........']);
 [a,b] = size(h);
-predicted_labels = libsvmpredict(rand(b,1),h',SVM_Mdl,'');
+h = sparse(h');
+prob = zeros(b,length(class_list));
+for k=1:length(class_list)
+    [~,~,p] = predict(rand(b,1),h,SVM_Mdl{k},'');
+    prob(:,k) = p(:);
+end
 
+[hg,pred] = max(prob,[],2);
+pred(hg<thr) = 0;
+a=0;
 
 % Create event-roll representation
 %fprintf('%s',['Postprocessing...........']);

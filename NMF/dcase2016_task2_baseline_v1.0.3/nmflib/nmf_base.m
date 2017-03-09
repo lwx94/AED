@@ -146,7 +146,7 @@ for t = 1:niter
     % update H if requested
     if update_H
         H=H.*((W'*(V./R))./(W'*one));
-        H = H.*(1./(1+lambda./(epsilon+abs(H))));
+      %  H = H.*(1./(1+lambda./(epsilon+sum(abs(H)))));
         if norm_h ~= 0
             H = normalize_H(H,norm_h);
         end
