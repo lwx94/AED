@@ -77,7 +77,7 @@ for i=1:length(fileList)
     % calculating kmeans
     [miu,eps,J] = kmeans(w',K,'f',100);
     
-    [w_mld,h_mld,errs_mld,vout_mld] = nmf_mld(X',R2,miu,'niter',iter,'verb',3,'lambda',2,'epsilon',1E-5);
+    [w_mld,h_mld,errs_mld,vout_mld] = nmf_mld(X',R2,miu,'niter',iter,'verb',3,'lambda',2,'epsilon',1E-5,'nn',0.1);
     % Add to dictionary
     spectralTemplates = w_mld';   
     

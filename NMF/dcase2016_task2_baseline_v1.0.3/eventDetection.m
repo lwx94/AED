@@ -1,4 +1,4 @@
-function [pred] = eventDetection(filename,iter,beta,thr,mf,maxpoly,mindur)
+function [pred] = eventDetection(filename,K,iter,beta,thr,mf,maxpoly,mindur)
 % DCASE 2016 - Task 2 - Event Detection
 % http://www.cs.tut.fi/sgn/arg/dcase2016/task-synthetic-sound-event-detection
 %
@@ -28,8 +28,8 @@ warning('off');
 load('W');
 load('SVM_Mdl');
 class_list = {'clearthroat','cough', 'doorslam', 'drawer', 'keyboard', 'keys', 'knock', 'laughter', 'pageturn', 'phone', 'speech'};
-[R,~] = size(W);
-
+[RR,~] = size(W);
+R = RR/K;
 
 % Compute VQT spectrogram
 disp('DCASE 2016 - Task 2 - Event Detection');
@@ -58,7 +58,7 @@ fprintf('\n');
 
 % Perform NMF with noise dictionary
 fprintf('%s',['Performing NMF...........']);
-[w,h,errs,vout] = nmf_noise(Y',R,'W0',W','W',W','niter',iter,'verb', 1,'lambda',2,'epsilon',1E-5);
+[w,h,errs,vout] = nmf_noise(Y',R,K,'W0',W','W',W','niter',iter,'verb', 1,'lambda',2,'epsilon',1E-5);
 fprintf('%s','done');
 fprintf('\n');
 
@@ -67,15 +67,32 @@ fprintf('%s',['Predicting...........']);
 [a,b] = size(h);
 h = sparse(h');
 prob = zeros(b,length(class_list));
-for k=1:length(class_list)
-    [~,~,p] = predict(rand(b,1),h,SVM_Mdl{k},'');
-    prob(:,k) = p(:);
-end
+[pred,acc,prob] = libsvmpredict_ova(rand(b,1),h,SVM_Mdl,opts);
+
 
 [hg,pred] = max(prob,[],2);
 pred(hg<thr) = 0;
 a=0;
+end
 
+
+function [pred,acc,prob] = libsvmpredict_ova(y, X, mdl)
+    %# classes
+    labels = mdl.labels;
+    numLabels = numel(labels);
+
+    %# get probability estimates of test instances using each 1-vs-all model
+    prob = zeros(size(X,1), numLabels);
+    for k=1:numLabels
+        [~,~,p] = libsvmpredict(double(y==labels(k)), X, mdl.models{k}, '-b 1 -q');
+        prob(:,k) = p(:, mdl.models{k}.Label==1);
+    end
+
+    %# predict the class with the highest probability
+    [~,pred] = max(prob, [], 2);
+    %# compute classification accuracy
+    acc = mean(pred == y);
+end
 % Create event-roll representation
 %fprintf('%s',['Postprocessing...........']);
 %h_reshaped = reshape(h,[20 length(class_list) size(h,2)]);

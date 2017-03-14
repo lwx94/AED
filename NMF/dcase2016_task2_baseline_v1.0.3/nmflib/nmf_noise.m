@@ -1,4 +1,4 @@
-function [W,H,errs,vout] = nmf_noise(V,r,varargin)
+function [W,H,errs,vout] = nmf_noise(V,r,K,varargin)
 % function [W,H,errs,vout] = nmf_beta(V,r,varargin)
 %
 % Implements NMF using the beta-divergence [1]:
@@ -95,7 +95,7 @@ end
 % initialize W based on what we got passed
 if isempty(W)
     if isempty(W0)
-        W = rand(n,r);
+        W = rand(n,r*K);
     else
         W = W0;
     end
@@ -103,11 +103,11 @@ if isempty(W)
 else 
     update_W = false;
 end
-Wn = rand(n,r);
+Wn = rand(n,r*K);
 % initialize H based on what we got passed
 if isempty(H)
     if isempty(H0)
-        H = rand(r,m);
+        H = rand(r*K,m);
     else
         H = H0;
     end
@@ -115,7 +115,7 @@ if isempty(H)
 else % we aren't H
     update_H = false;
 end
-Hn = rand(r,m);
+Hn = rand(r*K,m);
 
 if norm_w ~= 0
     % normalize W
@@ -132,6 +132,7 @@ R = W*H+Wn*Hn;
 
 errs = zeros(niter,1);
 one = ones(n,m);
+
 for t = 1:niter
     % update W if requested
     if update_W
@@ -148,9 +149,22 @@ for t = 1:niter
     % update H if requested
     if update_H
         H = H.*((W'*(V./R))./(W'*one));
-        H = H.*(1./(1+lambda./(epsilon+abs(H))));
+        %H = H.*(1./(1+lambda./(epsilon+abs(H))));
+        for mm=1:m
+            for g=1:K
+
+                H((g-1)*r+1:g*r,mm) = H((g-1)*r+1:g*r,mm)*...
+                    (1/(1+lambda/(epsilon+norm(H((g-1)*r+1:g*r,mm),1))));
+            end
+        end
         Hn = Hn.*((Wn'*(V./R))./(Wn'*one));
-        Hn = Hn.*(1./(1+lambda./(epsilon+abs(Hn))));
+        %Hn = Hn.*(1./(1+lambda./(epsilon+abs(Hn))));
+        for mm=1:m
+            for g=1:K
+                Hn((g-1)*r+1:g*r,mm) = Hn((g-1)*r+1:g*r,mm)*...
+                    (1/(1+lambda/(epsilon+norm(Hn((g-1)*r+1:g*r,mm),1))));
+            end
+        end
         if norm_h ~= 0
             H = normalize_H(H,norm_h);
         end
